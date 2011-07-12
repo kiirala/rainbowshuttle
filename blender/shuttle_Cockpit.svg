@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="1024px" height="1024px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<desc>UV-Map from Object: Cockpit. Exported from Blender3D with UV Exportscript</desc>
+<rect x="0" y="0" width="1024" height="1024" fill="none" stroke="blue" stroke-width="1px" />
+<g style="fill:#F2DAF2; stroke:black; stroke-width:1px;">
+<polygon points="173.778,249.269 106.959,317.819 3.265,464.346 161.166,491.179 " />
+<polygon points="100.913,49.788 3.204,128.047 106.959,317.819 173.778,249.269 " />
+<polygon points="385.610,238.415 296.391,214.347 423.706,416.037 545.362,309.814 " />
+<polygon points="384.271,19.414 264.057,3.373 296.391,214.347 385.610,238.415 " />
+<polygon points="296.391,214.347 229.981,213.636 297.079,474.585 423.706,416.037 " />
+<polygon points="229.981,213.636 173.778,249.269 161.166,491.179 297.079,474.585 " />
+<polygon points="264.057,3.373 176.635,6.480 229.981,213.636 296.391,214.347 " />
+<polygon points="176.635,6.480 100.913,49.788 173.778,249.269 229.981,213.636 " />
+<polygon points="384.271,19.414 385.610,238.415 545.362,309.814 " />
+<polygon points="3.204,128.047 3.265,464.346 106.959,317.819 " />
+</g>
+</svg>

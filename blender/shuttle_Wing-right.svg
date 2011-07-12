@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="1024px" height="1024px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<desc>UV-Map from Object: Wing-right. Exported from Blender3D with UV Exportscript</desc>
+<rect x="0" y="0" width="1024" height="1024" fill="none" stroke="blue" stroke-width="1px" />
+<g style="fill:#F2DAF2; stroke:black; stroke-width:1px;">
+<polygon points="595.913,657.740 373.256,479.810 373.256,808.909 722.386,950.633 " />
+<polygon points="629.122,633.358 874.301,664.196 678.769,368.249 429.265,481.207 " />
+<polygon points="595.913,657.740 629.122,633.358 429.265,481.207 373.256,479.810 " />
+<polygon points="373.256,479.810 429.265,481.207 678.769,368.249 637.803,344.960 " />
+<polygon points="717.916,342.898 678.769,368.249 874.301,664.196 938.466,676.886 " />
+<polygon points="629.122,633.358 595.913,657.740 882.911,700.148 874.301,664.196 " />
+</g>
+</svg>

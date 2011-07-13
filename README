@@ -5,3 +5,19 @@ Fast-paced racing game with shuttles.
 Implemented on Kajak3D framework, works at least on Android.
 
 Nothing much here yet...
+
+Compiling
+=========
+Instructions here are for Android target, I haven't had the time to
+try out other possible targets.
+
+* Install android sdk and ndk if you don't have them already
+* Get Kajak3D package and extract it to somewhere.
+* Edit KAJAK3D_ROOT in jni/Android.mk so that it points to where you
+  extracted Kajak3D
+* Compile the C++ portion
+  $ ndk-build
+* Compile Java parts and link
+  $ ant debug
+* Install to device, overwriting old version if one exists
+  $ adb install -r bin/RainbowShuttleActivity-debug.apk

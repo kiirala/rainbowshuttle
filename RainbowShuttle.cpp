@@ -11,6 +11,7 @@
 #include <HAL/Input.h>
 #include <HAL/File.h>
 #include <render/Loader_util.h>
+#include <render/World.h>
 #include <core/FileSystem.h>
 #include <core/FileArchive.h>
 
@@ -38,6 +39,7 @@ private:
   core::Ref< render::Background> background;
   core::Ref<HAL::Input> inputButtons;
   core::Ref<HAL::Input> inputAccelerometer;
+  core::Ref<render::World> shuttle;
   slm::mat4 cameraTransform; // camera position
   float	totalTime;
 
@@ -46,6 +48,10 @@ public:
   MyApplication()
     : cameraTransform(1.0f),totalTime(0.0f)
   {
+    inputButtons =
+      HAL::Input::createInputHandle(HAL::Input::INPUT_DEVICE_KEYBOARD);
+    inputAccelerometer =
+      HAL::Input::createInputHandle(HAL::Input::INPUT_DEVICE_ACCELEROMETER);
   }
 
   /** Application destructor */
@@ -72,7 +78,9 @@ public:
 		  -x * 10,
 		  0.0);
     g3d->drawLine(center, dir, 0xffffff);
-    
+
+    g3d->render(shuttle);
+
     g3d->releaseTarget(); // release graphics device
   }
 
@@ -113,13 +121,18 @@ public:
 			-ScreenHeight / 2, ScreenHeight / 2,
 			-1, 1);
 
+    core::Vector< core::Ref< render::Object3D > > objects;
+    render::Loader::load( g3d, "shuttle.m3g", objects );
+    shuttle = dynamic_cast<render::World*>(objects[0].ptr());
+    assert(shuttle);
+    // get mesh (mesh is a child of the world)
+    mesh = dynamic_cast<render::Mesh*>(shuttle->getChild(1)); 
+    assert(mesh);
+
     // create a background
     background = KAJAK3D_NEW render::Background();
     assert(background);
     background->setColor(0xFF0000);
-
-    inputButtons = HAL::Input::createInputHandle(HAL::Input::INPUT_DEVICE_KEYBOARD);
-    inputAccelerometer = HAL::Input::createInputHandle(HAL::Input::INPUT_DEVICE_ACCELEROMETER);
 
     // print info about Graphics
     const render::Graphics3DProperties& properties = g3d->getProperties();

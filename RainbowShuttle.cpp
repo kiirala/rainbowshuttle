@@ -60,25 +60,22 @@ public:
 
   /** render method includes all drawing functionalities */
   void render(render::Graphics3D* g3d) {
-    g3d->bindTarget(0); // bind graphics device
-    g3d->clear(background); // clear the display
-
-    g3d->setCamera(camera,cameraTransform); // set active 3D-camera
-    //g3d->render(mesh, slm::mat4(1.0f));	// render 3D-object
-    slm::vec3 a(0, 0, 0);
-    slm::vec3 b(10 * sinf(totalTime), 10, 0);
-    slm::vec3 c(-10, -10, 0);
-    g3d->drawLine(a, b, 0xffffff);
-    g3d->drawLine(a, c, 0xff);
-    slm::vec3 center(0, 0, 0);
     float x = inputAccelerometer->readInput(HAL::Input::AXIS_X);
     float y = inputAccelerometer->readInput(HAL::Input::AXIS_Y);
     float z = inputAccelerometer->readInput(HAL::Input::AXIS_Z);
-    slm::vec3 dir(y * 10,
-		  -x * 10,
-		  0.0);
-    g3d->drawLine(center, dir, 0xffffff);
+    slm::vec3 down(-y, x, z);
+    slm::vec3 downUnit = slm::normalize(down);
 
+    g3d->bindTarget(0); // bind graphics device
+    g3d->clear(background); // clear the display
+
+    render::Camera* camera = shuttle->getActiveCamera();
+    slm::vec3 cameraRotate(slm::cross(downUnit, slm::vec3(0, 1, 0)));
+    camera->setTransform(slm::translation(downUnit * -10));
+//    camera->postRotate(acos(slm::dot(downUnit, slm::vec3(0, 1, 0))),
+//    		cameraRotate.x, cameraRotate.y, cameraRotate.z);
+//    		slm::lookAtRH(downUnit * 10, slm::vec3(0, 0, 0),
+//    		slm::vec3(0, 0, 1)));
     g3d->render(shuttle);
 
     g3d->releaseTarget(); // release graphics device
@@ -111,15 +108,17 @@ public:
 
     // create a 3D-camera
     camera = KAJAK3D_NEW render::Camera();
-    /*
+
     camera->setPerspective(60.0f,
 			   ScreenWidth / float(ScreenHeight),
 			   0.1f,
 			   10000.0f);
-    */
+
+/*
     camera->setParallel(-ScreenWidth / 2, ScreenWidth / 2,
 			-ScreenHeight / 2, ScreenHeight / 2,
 			-1, 1);
+*/
 
     core::Vector< core::Ref< render::Object3D > > objects;
     render::Loader::load( g3d, "shuttle.m3g", objects );

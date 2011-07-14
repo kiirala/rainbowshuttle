@@ -4,3 +4,4 @@ gen
 libs
 obj
 blender/*.blend1
+local.properties

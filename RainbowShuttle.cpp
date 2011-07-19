@@ -69,9 +69,16 @@ public:
     g3d->bindTarget(0); // bind graphics device
     g3d->clear(background); // clear the display
 
+    slm::vec3 forward(downUnit.x, -downUnit.z, -downUnit.y);
     render::Camera* camera = shuttle->getActiveCamera();
-    slm::vec3 cameraRotate(slm::cross(downUnit, slm::vec3(0, 1, 0)));
-    camera->setTransform(slm::translation(downUnit * -10));
+    slm::vec3 cameraSide(slm::cross(forward, slm::vec3(0, 1, 0)));
+    slm::mat4 cameraTrans(
+    		slm::vec4(cameraSide, 0),
+    		slm::vec4(slm::cross(cameraSide, forward), 0),
+    		slm::vec4(-forward, 0),
+    		slm::vec4(forward * -10, 1));
+    camera->setTransform(cameraTrans);
+//    camera->setTransform(slm::translation(downUnit * -10));
 //    camera->postRotate(acos(slm::dot(downUnit, slm::vec3(0, 1, 0))),
 //    		cameraRotate.x, cameraRotate.y, cameraRotate.z);
 //    		slm::lookAtRH(downUnit * 10, slm::vec3(0, 0, 0),

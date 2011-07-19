@@ -30,7 +30,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/../include/ \
 # List your game sourcefiles in LOCAL_SRC_FILES 
 #
 
-LOCAL_SRC_FILES := RainbowShuttle.cpp
+LOCAL_SRC_FILES := RainbowShuttle.cpp Shuttle.cpp
 
 LOCAL_CFLAGS=-fexceptions -frtti
 

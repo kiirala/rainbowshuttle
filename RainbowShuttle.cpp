@@ -25,6 +25,8 @@
 #include <core/ApkArchive.h>
 #endif
 
+#include "Shuttle.h"
+
 int ScreenWidth = 800;
 int ScreenHeight = 480;
 
@@ -35,18 +37,17 @@ const float	vertexBufferScale = 10.0f;
 class MyApplication : public framework::App {
 private:
   core::Ref< render::Camera > camera;	// objects are rendered via camera 
-  core::Ref< render::Mesh > mesh; // mesh is a 3D object
   core::Ref< render::Background> background;
   core::Ref<HAL::Input> inputButtons;
   core::Ref<HAL::Input> inputAccelerometer;
-  core::Ref<render::World> shuttle;
-  slm::mat4 cameraTransform; // camera position
+  core::Ref<render::World> world;
+  core::Ref<Shuttle> shuttle;
   float	totalTime;
 
 public:
   /** Application constructor */
   MyApplication()
-    : cameraTransform(1.0f),totalTime(0.0f)
+    : totalTime(0.0f)
   {
     inputButtons =
       HAL::Input::createInputHandle(HAL::Input::INPUT_DEVICE_KEYBOARD);
@@ -60,30 +61,36 @@ public:
 
   /** render method includes all drawing functionalities */
   void render(render::Graphics3D* g3d) {
-    float x = inputAccelerometer->readInput(HAL::Input::AXIS_X);
-    float y = inputAccelerometer->readInput(HAL::Input::AXIS_Y);
-    float z = inputAccelerometer->readInput(HAL::Input::AXIS_Z);
-    slm::vec3 down(-y, x, z);
-    slm::vec3 downUnit = slm::normalize(down);
-
     g3d->bindTarget(0); // bind graphics device
     g3d->clear(background); // clear the display
 
-    slm::vec3 forward(downUnit.x, -downUnit.z, -downUnit.y);
-    render::Camera* camera = shuttle->getActiveCamera();
-    slm::vec3 cameraSide(slm::cross(forward, slm::vec3(0, 1, 0)));
-    slm::mat4 cameraTrans(
-    		slm::vec4(cameraSide, 0),
-    		slm::vec4(slm::cross(cameraSide, forward), 0),
-    		slm::vec4(-forward, 0),
-    		slm::vec4(forward * -10, 1));
-    camera->setTransform(cameraTrans);
-//    camera->setTransform(slm::translation(downUnit * -10));
-//    camera->postRotate(acos(slm::dot(downUnit, slm::vec3(0, 1, 0))),
-//    		cameraRotate.x, cameraRotate.y, cameraRotate.z);
-//    		slm::lookAtRH(downUnit * 10, slm::vec3(0, 0, 0),
-//    		slm::vec3(0, 0, 1)));
-    g3d->render(shuttle);
+//    slm::vec3 forward(downUnit.x, -downUnit.z, -downUnit.y);
+//    render::Camera* camera = world->getActiveCamera();
+//    slm::vec3 cameraSide(slm::cross(forward, slm::vec3(0, 1, 0)));
+//    slm::mat4 cameraTrans(
+//    		slm::vec4(cameraSide, 0),
+//    		slm::vec4(slm::cross(cameraSide, forward), 0),
+//    		slm::vec4(-forward, 0),
+//    		slm::vec4(forward * -10, 1));
+//    camera->setTransform(cameraTrans);
+
+    render::Camera* camera = world->getActiveCamera();
+    slm::mat4 orientation(shuttle->orientation);
+    slm::vec4 forward = orientation * slm::vec4(0, 1, 0, 0);
+    slm::vec4 side = orientation * slm::vec4(1, 0, 0, 0);
+    slm::vec4 up = orientation * slm::vec4(0, 0, 1, 0);
+    slm::vec3 cameraPos(shuttle->position - 10 * forward.xyz());
+//    slm::mat4 cameraTrans(
+//    		slm::vec4(side.xyz(), cameraPos.x),
+//    		slm::vec4(up.xyz(), cameraPos.y),
+//    		slm::vec4(-forward.xyz(), cameraPos.z),
+//    		slm::vec4(0, 0, 0, 1));
+//    camera->setTransform(slm::transpose(cameraTrans));
+//    slm::mat4 cameraTrans(
+//    		side, up, forward, slm::vec4(cameraPos, 1));
+//    camera->setTransform(cameraTrans);
+    camera->setTransform(slm::inverse(slm::lookAtRH(cameraPos, shuttle->position, up.xyz())));
+    g3d->render(world);
 
     g3d->releaseTarget(); // release graphics device
   }
@@ -91,6 +98,17 @@ public:
   /** update method updates your application logic */
   bool update(float dt ) {
     totalTime += dt;
+
+    float x = inputAccelerometer->readInput(HAL::Input::AXIS_X);
+    float y = inputAccelerometer->readInput(HAL::Input::AXIS_Y);
+    float z = inputAccelerometer->readInput(HAL::Input::AXIS_Z);
+    slm::vec3 down(-y, x, z);
+    if (x != 0 || y != 0 || z != 0) {
+        slm::vec3 downUnit = slm::normalize(down);
+
+        shuttle->rotate(asinf(downUnit.x) * dt, asinf(downUnit.z) * dt);
+        shuttle->update(dt);
+    }
 
     if (inputButtons->readInput(HAL::Input::KEY_BACK) != .0f)
       return false;
@@ -129,16 +147,33 @@ public:
 
     core::Vector< core::Ref< render::Object3D > > objects;
     render::Loader::load( g3d, "shuttle.m3g", objects );
-    shuttle = dynamic_cast<render::World*>(objects[0].ptr());
-    assert(shuttle);
-    // get mesh (mesh is a child of the world)
-    mesh = dynamic_cast<render::Mesh*>(shuttle->getChild(1)); 
-    assert(mesh);
+    core::Ref<render::World> shuttleWorld =
+    		dynamic_cast<render::World*>(objects[0].ptr());
+    assert(shuttleWorld);
+    core::Ref<render::Group> shuttleModel = KAJAK3D_NEW render::Group();
+    for (int i = 0 ; i < shuttleWorld->getChildCount() ; ++i) {
+    	render::Mesh* modelMesh =
+    			dynamic_cast<render::Mesh*>(shuttleWorld->getChild(i));
+    	if (modelMesh) {
+    		shuttleModel->addChild(modelMesh);
+    	}
+    }
+    shuttle = KAJAK3D_NEW Shuttle(shuttleModel);
 
     // create a background
     background = KAJAK3D_NEW render::Background();
     assert(background);
-    background->setColor(0xFF0000);
+    background->setColor(0xFF);
+
+    world = KAJAK3D_NEW render::World();
+    core::Ref<render::Light> light = KAJAK3D_NEW render::Light();
+    light->translate(5, 5, 5);
+    world->addChild(light);
+    world->setBackground(background);
+    world->addChild(shuttle->model);
+    core::Ref<render::Camera> camera = KAJAK3D_NEW render::Camera();
+    world->setActiveCamera(camera);
+    world->addChild(camera);
 
     // print info about Graphics
     const render::Graphics3DProperties& properties = g3d->getProperties();

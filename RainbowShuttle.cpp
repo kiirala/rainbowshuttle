@@ -79,7 +79,7 @@ public:
     slm::vec4 forward = orientation * slm::vec4(0, 1, 0, 0);
     slm::vec4 side = orientation * slm::vec4(1, 0, 0, 0);
     slm::vec4 up = orientation * slm::vec4(0, 0, 1, 0);
-    slm::vec3 cameraPos(shuttle->position - 10 * forward.xyz());
+    slm::vec3 cameraPos(shuttle->position - 10 * forward.xyz() + up.xyz());
 //    slm::mat4 cameraTrans(
 //    		slm::vec4(side.xyz(), cameraPos.x),
 //    		slm::vec4(up.xyz(), cameraPos.y),
@@ -89,7 +89,9 @@ public:
 //    slm::mat4 cameraTrans(
 //    		side, up, forward, slm::vec4(cameraPos, 1));
 //    camera->setTransform(cameraTrans);
-    camera->setTransform(slm::inverse(slm::lookAtRH(cameraPos, shuttle->position, up.xyz())));
+    camera->setTransform(slm::inverse(slm::lookAtRH(cameraPos, shuttle->position + up.xyz(), up.xyz())));
+//    camera->setTransform(slm::inverse(slm::lookAtRH(shuttle->position,
+//   		shuttle->position + forward.xyz(), up.xyz())));
     g3d->render(world);
 
     g3d->releaseTarget(); // release graphics device
@@ -169,13 +171,28 @@ public:
     render::Loader::load(g3d, "level-test.m3g", objectsLevel);
     world = dynamic_cast<render::World*>(objectsLevel[0].ptr());
     assert(world);
+    slm::mat4 worldScale(slm::scaling(10));
+    for (int i = 0 ; i < world->getChildCount() ; ++i) {
+    	render::Node* child = world->getChild(i);
+    	render::Camera* cam = dynamic_cast<render::Camera*>(child);
+    	if (cam) continue;
+    	render::Light* light = dynamic_cast<render::Light*>(child);
+    	if (light) {
+    		light->setAttenuation(light->getConstantAttenuation(),
+    				light->getLinearAttenuation() / 10.0,
+    				light->getQuadraticAttenuation() / (10.0 * 10.0));
+    	}
+    	child->scale(10, 10, 10);
+    	slm::vec3 translation = child->getTranslation();
+    	child->setTranslation(translation.x * 10, translation.y * 10, translation.z * 10);
+    }
 
 //    world = KAJAK3D_NEW render::World();
 //    core::Ref<render::Light> light = KAJAK3D_NEW render::Light();
 //    light->translate(5, 5, 5);
 //    world->addChild(light);
 //    world->setBackground(background);
-    world->addChild(shuttle->model);
+	world->addChild(shuttle->model);
 //    core::Ref<render::Camera> camera = KAJAK3D_NEW render::Camera();
 //    world->setActiveCamera(camera);
 //    world->addChild(camera);

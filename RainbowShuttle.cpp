@@ -106,7 +106,7 @@ public:
     if (x != 0 || y != 0 || z != 0) {
         slm::vec3 downUnit = slm::normalize(down);
 
-        shuttle->rotate(asinf(downUnit.x) * dt, asinf(downUnit.z) * dt);
+        shuttle->rotate(-asinf(downUnit.x) * dt, -asinf(downUnit.z) * dt);
         shuttle->update(dt);
     }
 
@@ -165,15 +165,20 @@ public:
     assert(background);
     background->setColor(0xFF);
 
-    world = KAJAK3D_NEW render::World();
-    core::Ref<render::Light> light = KAJAK3D_NEW render::Light();
-    light->translate(5, 5, 5);
-    world->addChild(light);
-    world->setBackground(background);
+    core::Vector< core::Ref< render::Object3D > > objectsLevel;
+    render::Loader::load(g3d, "level-test.m3g", objectsLevel);
+    world = dynamic_cast<render::World*>(objectsLevel[0].ptr());
+    assert(world);
+
+//    world = KAJAK3D_NEW render::World();
+//    core::Ref<render::Light> light = KAJAK3D_NEW render::Light();
+//    light->translate(5, 5, 5);
+//    world->addChild(light);
+//    world->setBackground(background);
     world->addChild(shuttle->model);
-    core::Ref<render::Camera> camera = KAJAK3D_NEW render::Camera();
-    world->setActiveCamera(camera);
-    world->addChild(camera);
+//    core::Ref<render::Camera> camera = KAJAK3D_NEW render::Camera();
+//    world->setActiveCamera(camera);
+//    world->addChild(camera);
 
     // print info about Graphics
     const render::Graphics3DProperties& properties = g3d->getProperties();
